@@ -157,7 +157,6 @@ func convertSite(cmd *cobra.Command, args []string) error {
 
 	switch outType {
 	case "clash":
-		os.MkdirAll(outDir+"/classical", 0777)
 		for code, domain := range domains {
 			domainMap := map[string][]string{
 				"payload": domain,
@@ -170,32 +169,10 @@ func convertSite(cmd *cobra.Command, args []string) error {
 			if err != nil {
 				fmt.Println(code, " output err: ", err)
 			}
-			domainOut = []byte(strings.Join(domain, "\n"))
-			err = os.WriteFile(outDir+"/"+code+".list", domainOut, 0666)
+			err = meta.SaveMetaRuleSet(domainOut, "domain", "yaml", outDir+"/"+code+".mrs")
 			if err != nil {
 				fmt.Println(code, " output err: ", err)
 			}
-			err = meta.SaveMetaRuleSet(domainOut, "domain", "text", outDir+"/"+code+".mrs")
-			if err != nil {
-				fmt.Println(code, " output err: ", err)
-			}
-			classicalMap := map[string][]string{
-				"payload": classical[code],
-			}
-			classicalOut, err := yaml.Marshal(&classicalMap)
-			if err != nil {
-				fmt.Println(code, " coding err: ", err)
-			}
-			err = os.WriteFile(outDir+"/classical/"+code+".yaml", classicalOut, 0666)
-			if err != nil {
-				fmt.Println(code, " output err: ", err)
-			}
-			classicalOut = []byte(strings.Join(classical[code], "\n"))
-			err = os.WriteFile(outDir+"/classical/"+code+".list", classicalOut, 0666)
-			if err != nil {
-				fmt.Println(code, " output err: ", err)
-			}
-			// meta.SaveMetaRuleSet(classicalOut, "classical", "text", outDir+"/classical/"+code+".mrs")
 		}
 	case "sing-box":
 		for code, domain := range domainFull {
